@@ -1,66 +1,33 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Asistente Cocina</title>
-  <style>
-    button {
-      padding: 15px 25px;
-      font-size: 18px;
-      cursor: pointer;
-      background-color: #4CAF50;
-      border: none;
-      color: white;
-      border-radius: 5px;
-      transition: background-color 0.3s ease;
+from flask import Flask, render_template
+import os
+import requests
+
+app = Flask(__name__)
+
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/llamar-mesero")
+def llamar_mesero():
+    mensaje = "📢 La mesa ha llamado al mesero. ¡Atención!"
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": mensaje
     }
-    button.loading {
-      background-color: #999;
-      cursor: wait;
-    }
-    button.success {
-      background-color: #28a745;
-    }
-  </style>
-</head>
-<body>
+    try:
+        response = requests.post(url, data=payload)
+        if response.status_code == 200:
+            return "✅ Mensaje enviado al mesero."
+        else:
+            return f"❌ Error al enviar mensaje: {response.text}"
+    except Exception as e:
+        return f"❌ Excepción al enviar mensaje: {e}"
 
-  <button id="llamar-btn">Llamar al mesero</button>
-
-  <script>
-    const btn = document.getElementById('llamar-btn');
-
-    btn.addEventListener('click', () => {
-      btn.disabled = true;
-      btn.classList.add('loading');
-      btn.textContent = 'Enviando...';
-
-      fetch('/llamar-mesero')
-        .then(response => response.text())
-        .then(text => {
-          btn.classList.remove('loading');
-          btn.classList.add('success');
-          btn.textContent = '¡Mensaje enviado!';
-
-          setTimeout(() => {
-            btn.disabled = false;
-            btn.classList.remove('success');
-            btn.textContent = 'Llamar al mesero';
-          }, 3000);
-        })
-        .catch(() => {
-          btn.classList.remove('loading');
-          btn.disabled = false;
-          btn.textContent = 'Error, intenta otra vez';
-          setTimeout(() => {
-            btn.textContent = 'Llamar al mesero';
-          }, 3000);
-        });
-    });
-  </script>
-
-</body>
-</html>
-
-
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
