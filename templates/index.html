@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Asistente de Cocina</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Asistente Cocina</title>
   <style>
     body {
       font-family: sans-serif;
@@ -11,13 +12,10 @@
       padding-top: 50px;
     }
 
-    h1 {
-      color: #333;
-    }
-
     button {
       padding: 15px 30px;
       font-size: 18px;
+      margin: 10px;
       border: none;
       border-radius: 8px;
       background-color: #28a745;
@@ -31,65 +29,59 @@
       cursor: not-allowed;
     }
 
-    .spinner {
-      border: 4px solid #fff;
-      border-top: 4px solid #555;
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      animation: spin 1s linear infinite;
-      display: inline-block;
-      margin-left: 10px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .status {
+    #mensaje-estado {
       margin-top: 20px;
+      font-weight: bold;
       font-size: 16px;
       color: #28a745;
-      display: none;
+      min-height: 24px;
     }
   </style>
 </head>
 <body>
+
   <h1>Asistente de Cocina</h1>
-  <button id="callButton">Llamar al mesero</button>
-  <div class="status" id="statusMsg">✅ Mensaje enviado al mesero.</div>
+
+  <button class="boton-accion" data-url="/llamar-mesero">Llamar al mesero</button>
+  <button class="boton-accion" data-url="/otra-cerveza">Otra cerveza</button>
+  <button class="boton-accion" data-url="/incidente">Reportar incidente</button>
+
+  <div id="mensaje-estado"></div>
 
   <script>
-    const button = document.getElementById("callButton");
-    const status = document.getElementById("statusMsg");
+    const botones = document.querySelectorAll(".boton-accion");
+    const mensajeEstado = document.getElementById("mensaje-estado");
 
-    button.addEventListener("click", () => {
-      button.disabled = true;
-      const originalText = button.innerHTML;
-      button.innerHTML = 'Enviando <span class="spinner"></span>';
+    botones.forEach(boton => {
+      boton.addEventListener("click", () => {
+        boton.disabled = true;
+        const url = boton.getAttribute("data-url");
+        const textoOriginal = boton.textContent;
+        boton.textContent = "Enviando...";
 
-      fetch("/llamar-mesero")
-        .then(response => response.text())
-        .then(data => {
-          button.innerHTML = "✅ Enviado";
-          status.style.display = "block";
-
-          setTimeout(() => {
-            button.disabled = false;
-            button.innerHTML = originalText;
-            status.style.display = "none";
-          }, 3000);
-        })
-        .catch(error => {
-          button.innerHTML = "❌ Error";
-          console.error("Error al llamar al mesero:", error);
-          setTimeout(() => {
-            button.disabled = false;
-            button.innerHTML = originalText;
-          }, 3000);
-        });
+        fetch(url)
+          .then(resp => resp.text())
+          .then(data => {
+            boton.textContent = "✅ Enviado";
+            mensajeEstado.textContent = data;
+            setTimeout(() => {
+              boton.disabled = false;
+              boton.textContent = textoOriginal;
+              mensajeEstado.textContent = "";
+            }, 3000);
+          })
+          .catch(() => {
+            boton.textContent = "❌ Error";
+            mensajeEstado.textContent = "Error al enviar, intenta otra vez";
+            setTimeout(() => {
+              boton.disabled = false;
+              boton.textContent = textoOriginal;
+              mensajeEstado.textContent = "";
+            }, 3000);
+          });
+      });
     });
   </script>
+
 </body>
 </html>
