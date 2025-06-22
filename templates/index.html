@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Asistente de Cocina</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+            text-align: center;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #resultado {
+            margin-top: 1rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>🍽️ Asistente de Cocina</h1>
+    <button id="llamarMeseroBtn">Llamar al Mesero</button>
+    <p id="resultado"></p>
+
+    <script>
+        document.getElementById('llamarMeseroBtn').addEventListener('click', () => {
+            fetch('/llamar-mesero')
+                .then(response => response.text())
+                .then(texto => {
+                    document.getElementById('resultado').innerText = texto;
+                })
+                .catch(err => {
+                    document.getElementById('resultado').innerText = '❌ Error en la solicitud';
+                });
+        });
+    </script>
+</body>
+</html>

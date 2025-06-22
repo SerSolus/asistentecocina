@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 import os
 import requests
 
@@ -9,7 +9,7 @@ TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
 @app.route("/")
 def home():
-    return "✅ ¡Asistente de cocina funcionando en Render!"
+    return render_template("index.html")
 
 @app.route("/llamar-mesero")
 def llamar_mesero():
